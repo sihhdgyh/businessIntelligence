@@ -112,28 +112,27 @@ def getUserCategoryClick():
     result = db.session.query(News.category,func.count(History.id)).filter(and_(
         History.newsId == News.newsId,
         History.userId == userId
-    )).group_by(News.category).order_by(func.count(History.id).desc()).all()
+    )).group_by(News.category).all()
 
     print(result)
+    resultJson={}
+    for item in result:
+        resultJson[item[0]]=item[1]
 
-    return {
-        'category':result[0][0],
-        'clickAmount':result[0][1]
-    }
+    return resultJson
 
 @newsController.route('/getCategoryClick', methods=['GET'])
 def getCategoryClick():
 
     result = db.session.query(News.category,func.count(History.id)).filter(and_(
         History.newsId == News.newsId,
-    )).group_by(News.category).order_by(func.count(History.id).desc()).all()
+    )).group_by(News.category).all()
 
     print(result)
-
-    return {
-        'category':result[0][0],
-        'clickAmount':result[0][1]
-    }
+    resultJson = {}
+    for item in result:
+        resultJson[item[0]] = item[1]
+    return resultJson
 
 
 @newsController.route('/multiQuery', methods=['POST'])
