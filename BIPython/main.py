@@ -2,10 +2,12 @@ from flask import Flask, request
 # 创建Flask实例
 import settings
 from controller.newsController import newsController
+from flask_cors import CORS
 
 from database import db
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 app.config.from_object(settings.Configs)  # 加载flask项目配置
 db.init_app(app)
 

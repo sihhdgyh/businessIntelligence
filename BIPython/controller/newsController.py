@@ -12,7 +12,7 @@ newsController = Blueprint('newsController', __name__)
 
 
 
-@newsController.route('/getAllNews', methods=['GET'])
+@newsController.route('/api/getAllNews', methods=['GET'])
 def getAllNews():
     news=News.query.all()
     return News.jsonformatList(news)
