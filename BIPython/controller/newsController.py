@@ -135,24 +135,59 @@ def getCategoryClick():
     return resultJson
 
 
+
+'''
+根据用户id+天，获取某天该用户对所有种类的新闻的点击量
+'''
+@newsController.route('/categoryClickUserDay', methods=['POST'])
+def categoryClickUserDay():
+    userId=request.json['userId']
+    year = request.json['year']
+    month = request.json['month']
+    day = request.json['day']
+
+    result = db.session.query(News.category,func.count(History.id)).filter(and_(
+        History.newsId == News.newsId,
+        History.year==year,
+        History.month==month,
+        History.day==day,
+        History.userId==userId
+    )).group_by(News.category).all()
+
+    print(result)
+    resultJson = {}
+    for item in result:
+        resultJson[item[0]] = item[1]
+    return resultJson
+
+
+'''
+按照时间/时间段、新闻主题、新闻标题长度、新闻长度、特定用户、特定多个用户等多种条件和组合进行统计查询
+'''
 @newsController.route('/multiQuery', methods=['POST'])
 def multiQuery():
     year=request.json['year']
-    month = request.json['month']
-    day = request.json['day']
+    month_min = int(request.json['month_min'])
+    day_min = int(request.json['day_min'])
+    month_max = int(request.json['month_max'])
+    day_max = int(request.json['day_max'])
     category = request.json['category']
-    titleLength = int(request.json['titleLength'])
-    newsLength = int(request.json['newsLength'])
+    titleLength_min = int(request.json['titleLength_min'])
+    newsLength_min = int(request.json['newsLength_min'])
+    titleLength_max = int(request.json['titleLength_max'])
+    newsLength_max = int(request.json['newsLength_max'])
     userId = request.json['userId']
     result = db.session.query(News).filter(and_(
         History.newsId == News.newsId,
         History.userId==userId,
         History.year==year,
-        History.month==month,
-        History.day==day,
         News.category==category,
-        func.char_length(News.headline) >= titleLength,
-        func.char_length(News.newsBody) >= newsLength
+        100*History.month+History.day>=100*month_min+day_min,
+        100 * History.month + History.day < 100 * month_max + day_max,
+        func.char_length(News.headline) >= titleLength_min,
+        func.char_length(News.newsBody) >= newsLength_min,
+        func.char_length(News.headline) < titleLength_max,
+        func.char_length(News.newsBody) < newsLength_max,
     )).all()
     print(result)
     return News.jsonformatList(result)
