@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from flask import Blueprint, request, session
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, extract
 
 from database import db
 from entity.history import History
@@ -12,7 +12,7 @@ newsController = Blueprint('newsController', __name__)
 
 
 
-@newsController.route('/api/getAllNews', methods=['GET'])
+@newsController.route('/getAllNews', methods=['GET'])
 def getAllNews():
     news=News.query.all()
     return News.jsonformatList(news)
@@ -21,22 +21,14 @@ def getAllNews():
 def getLifeTime():
     newsId=request.args['newsId']
     historys=History.query.filter(History.newsId == newsId)\
-        .order_by(History.year.desc())\
-        .order_by(History.month.desc()) \
-        .order_by(History.day.desc()) \
-        .order_by(History.hour.desc()) \
-        .order_by(History.minute.desc()) \
-        .order_by(History.seconds.desc())\
+        .order_by(History.exposureTime.desc())\
         .all()
     #History.year.desc(), History.month.desc(),History.day.desc(),History.hour.desc(),History.minute.desc(),History.seconds.desc()
     if len(historys) > 0:
-        startHistory = historys[len(historys) - 1]
-        start = datetime(year=startHistory.year, month=startHistory.month, day=startHistory.day,
-                         hour=startHistory.hour, minute=startHistory.minute, second=startHistory.seconds)
+        start = historys[len(historys) - 1].exposureTime
 
-        endHistory = historys[0]
-        end = datetime(year=endHistory.year, month=endHistory.month, day=endHistory.day,
-                       hour=endHistory.hour, minute=endHistory.minute, second=endHistory.seconds)
+        end = historys[0].exposureTime
+
         return {
             'start': str(start),
             'end': str(end)
@@ -47,12 +39,7 @@ def getLifeTime():
 @newsController.route('/getLifeTimeAll', methods=['GET'])
 def getLifeTimeAll():
     historys = History.query.group_by(History.newsId)\
-        .order_by(History.year.desc()) \
-        .order_by(History.month.desc()) \
-        .order_by(History.day.desc()) \
-        .order_by(History.hour.desc()) \
-        .order_by(History.minute.desc()) \
-        .order_by(History.seconds.desc()) \
+        .order_by(History.exposureTime.desc()) \
         .all()
     return History.jsonformatList(historys)
     # History.year.desc(), History.month.desc(),History.day.desc(),History.hour.desc(),History.minute.desc(),History.seconds.desc()
@@ -79,9 +66,9 @@ def newsClickDay():
     day = request.json['day']
     clicks= History.query.filter(and_(
         History.newsId == newsId,
-        History.year == year,
-        History.month == month,
-        History.day == day
+        extract('year', History.exposureTime) == year,
+        extract('month', History.exposureTime) == month,
+        extract('day', History.exposureTime) == day,
     )).all()
     return str(len(clicks))
 
@@ -96,9 +83,9 @@ def categoryClickDay():
     result=db.session.query(History.id).filter(and_(
         History.newsId==News.newsId,
         News.category == category,
-        History.year==year,
-        History.month==month,
-        History.day==day
+        extract('year', History.exposureTime) == year,
+        extract('month', History.exposureTime) == month,
+        extract('day', History.exposureTime) == day,
     )).all()
 
     print(result)
@@ -148,9 +135,9 @@ def categoryClickUserDay():
 
     result = db.session.query(News.category,func.count(History.id)).filter(and_(
         History.newsId == News.newsId,
-        History.year==year,
-        History.month==month,
-        History.day==day,
+        extract('year', History.exposureTime) == year,
+        extract('month', History.exposureTime) == month,
+        extract('day', History.exposureTime) == day,
         History.userId==userId
     )).group_by(News.category).all()
 
@@ -172,6 +159,8 @@ def multiQuery():
     month_max = int(request.json['month_max'])
     day_max = int(request.json['day_max'])
     category = request.json['category']
+    time_min=datetime(year=year,month=month_min,day=day_min,hour=0,minute=0,second=0)
+    time_max=datetime(year=year,month=month_max,day=day_max,hour=0,minute=0,second=0)
     titleLength_min = int(request.json['titleLength_min'])
     newsLength_min = int(request.json['newsLength_min'])
     titleLength_max = int(request.json['titleLength_max'])
@@ -180,10 +169,11 @@ def multiQuery():
     result = db.session.query(News).filter(and_(
         History.newsId == News.newsId,
         History.userId==userId,
-        History.year==year,
         News.category==category,
-        100*History.month+History.day>=100*month_min+day_min,
-        100 * History.month + History.day < 100 * month_max + day_max,
+        History.exposureTime>=time_min,
+        History.exposureTime < time_max,
+        # 100*History.month+History.day>=100*month_min+day_min,
+        # 100 * History.month + History.day < 100 * month_max + day_max,
         func.char_length(News.headline) >= titleLength_min,
         func.char_length(News.newsBody) >= newsLength_min,
         func.char_length(News.headline) < titleLength_max,
