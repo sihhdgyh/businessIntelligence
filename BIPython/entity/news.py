@@ -11,8 +11,6 @@ class News(db.Model):
     topic = db.Column(db.String(200))
     headline = db.Column(db.String(2000))
     newsBody = db.Column(db.String(2000))
-    titleEntity = db.Column(db.String(2000))
-    entityContent = db.Column(db.String(4000))
 
     def jsonformat(self):
         return {
@@ -21,8 +19,6 @@ class News(db.Model):
             "topic": self.topic,
             "headline": self.headline,
             "newsBody": self.newsBody,
-            "titleEntity": self.titleEntity,
-            "entityContent": self.entityContent
         }
 
     @staticmethod

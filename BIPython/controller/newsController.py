@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 from flask import Blueprint, request, session
@@ -166,19 +167,40 @@ def multiQuery():
     titleLength_max = int(request.json['titleLength_max'])
     newsLength_max = int(request.json['newsLength_max'])
     userId = request.json['userId']
-    result = db.session.query(News).filter(and_(
-        History.newsId == News.newsId,
-        History.userId==userId,
-        News.category==category,
-        History.exposureTime>=time_min,
-        History.exposureTime < time_max,
-        # 100*History.month+History.day>=100*month_min+day_min,
-        # 100 * History.month + History.day < 100 * month_max + day_max,
-        func.char_length(News.headline) >= titleLength_min,
-        func.char_length(News.newsBody) >= newsLength_min,
-        func.char_length(News.headline) < titleLength_max,
-        func.char_length(News.newsBody) < newsLength_max,
-    )).all()
+    time1 = time.time()
+    if userId=='':
+        result = db.session.query(News).filter(and_(
+            # result = History.query.filter(and_(
+            History.newsId == News.newsId,
+            #History.userId == userId,
+            News.category == category,
+            History.exposureTime >= time_min,
+            History.exposureTime < time_max,
+            # 100*History.month+History.day>=100*month_min+day_min,
+            # 100 * History.month + History.day < 100 * month_max + day_max,
+            func.char_length(News.headline) >= titleLength_min,
+            func.char_length(News.newsBody) >= newsLength_min,
+            func.char_length(News.headline) < titleLength_max,
+            func.char_length(News.newsBody) < newsLength_max,
+        )).all()
+    else:
+        result = db.session.query(News).filter(and_(
+            # result = History.query.filter(and_(
+            History.newsId == News.newsId,
+            History.userId == userId,
+            News.category == category,
+            History.exposureTime >= time_min,
+            History.exposureTime < time_max,
+            # 100*History.month+History.day>=100*month_min+day_min,
+            # 100 * History.month + History.day < 100 * month_max + day_max,
+            func.char_length(News.headline) >= titleLength_min,
+            func.char_length(News.newsBody) >= newsLength_min,
+            func.char_length(News.headline) < titleLength_max,
+            func.char_length(News.newsBody) < newsLength_max,
+        )).all()
+
+    time2 = time.time()
+    print(time2-time1)
     print(result)
     return News.jsonformatList(result)
 
