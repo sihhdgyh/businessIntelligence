@@ -155,7 +155,12 @@ def getCategoryClick():
                 "time": str(item[1]),
                 "amount": str(item[2])
             }]
-    return resultJson
+    resultList=[]
+    for item in resultJson.keys():
+        resultList.append({
+            item:resultJson[item]
+        })
+    return resultList
 
 
 
@@ -171,11 +176,11 @@ def categoryClickUserDay():
 
     time1 = time.time()
     result = db.session.query(News.category,func.count(History.id)).filter(and_(
+        History.userId == userId,
         History.newsId == News.newsId,
         extract('year', History.exposureTime) == year,
         extract('month', History.exposureTime) == month,
         extract('day', History.exposureTime) == day,
-        History.userId==userId
     )).group_by(News.category).all()
     time2 = time.time()
     print("查询时间：" + str(time2 - time1))
