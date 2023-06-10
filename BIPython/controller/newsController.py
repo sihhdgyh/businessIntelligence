@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 
 from flask import Blueprint, request, session
-from sqlalchemy import and_, func, extract
+from sqlalchemy import and_, func, extract, or_
 
 from database import db
 from entity.history import History
@@ -196,12 +196,14 @@ def categoryClickUserDay():
 '''
 @newsController.route('/multiQuery', methods=['POST'])
 def multiQuery():
-    year=request.json['year']
+    amount = int(request.json['amount'])
+    year=int(request.json['year'])
     month_min = int(request.json['month_min'])
     day_min = int(request.json['day_min'])
     month_max = int(request.json['month_max'])
     day_max = int(request.json['day_max'])
     category = request.json['category']
+    print(category)
     time_min=datetime(year=year,month=month_min,day=day_min,hour=0,minute=0,second=0)
     time_max=datetime(year=year,month=month_max,day=day_max,hour=0,minute=0,second=0)
     titleLength_min = int(request.json['titleLength_min'])
@@ -210,12 +212,41 @@ def multiQuery():
     newsLength_max = int(request.json['newsLength_max'])
     userId = request.json['userId']
     time1 = time.time()
+    #resultQuery="db.session.query(News).filter(and_(History.newsId == News.newsId,"
+    #for item in category:
+
+    # sql = "SELECT news.newsId AS news_newsId, " \
+    #       "news.category AS news_category, " \
+    #       "news.topic AS news_topic, " \
+    #       "news.headline AS news_headline, " \
+    #       "news.newsBody AS news_newsBody" \
+    #       " FROM news, history" \
+    #       " WHERE account_stocks.stock_code = stocks.stock_code " \
+    #       "and account_stocks.account = :account_1"
+    # #  返回的是rawProxy对象，还需要转为前端可以接受的Dict
+    # stock_list = db.session.execute(sql, {'account_1': account1})
+    # list1 = list(stock_list)
+    # ret_list = []
+    # for stock in list1:
+    #     list1 = {'id': stock[0],
+    #              'account': stock[1],
+    #              'stock_code': stock[2],
+    #              'number': float(stock[3]),
+    #              'cost': float(stock[4]),
+    #              'stock_name': stock[5],
+    #              'current_price': float(stock[6])
+    #              }
+    #     ret_list.append(list1)
+    # print(ret_list)
+    # stock_list = AccountStock.query.filter(
+    #     AccountStock.account == account1).all()
+
     if userId=='':
-        result = db.session.query(News).filter(and_(
+        resultQuery = db.session.query(News).filter(and_(
             # result = History.query.filter(and_(
             History.newsId == News.newsId,
             #History.userId == userId,
-            News.category == category,
+            #News.category == category,
             History.exposureTime >= time_min,
             History.exposureTime < time_max,
             # 100*History.month+History.day>=100*month_min+day_min,
@@ -224,13 +255,14 @@ def multiQuery():
             func.char_length(News.newsBody) >= newsLength_min,
             func.char_length(News.headline) < titleLength_max,
             func.char_length(News.newsBody) < newsLength_max,
-        )).all()
+        ))
+
     else:
-        result = db.session.query(News).filter(and_(
+        resultQuery = db.session.query(News).filter(and_(
             # result = History.query.filter(and_(
             History.newsId == News.newsId,
             History.userId == userId,
-            News.category == category,
+            #News.category == category,
             History.exposureTime >= time_min,
             History.exposureTime < time_max,
             # 100*History.month+History.day>=100*month_min+day_min,
@@ -239,11 +271,23 @@ def multiQuery():
             func.char_length(News.newsBody) >= newsLength_min,
             func.char_length(News.headline) < titleLength_max,
             func.char_length(News.newsBody) < newsLength_max,
-        )).all()
+        ))
 
+    # for item in category:
+    #     resultQuery = resultQuery.filter(or_(
+    #         News.category == item
+    #     ))
+    # resultQuery = resultQuery.filter(or_(
+    #     News.category == category[0],
+    #     News.category == category[1],
+    # ))
+    result=resultQuery.limit(amount).all()
+    #result = resultQuery
     time2 = time.time()
     print(time2-time1)
+    print("result")
     print(result)
+    #return News.jsonformatList(result)
     return News.jsonformatList(result)
 
 
