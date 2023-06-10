@@ -1,13 +1,15 @@
 import time
-from datetime import datetime
+from datetime import datetime, date
 
 from flask import Blueprint, request, session
 from sqlalchemy import and_, func, extract, or_
 
 from database import db
+from entity.categoryDayClick import categoryDayClick
 from entity.history import History
 from entity.news import News
 from entity.newsCategory import NewsCategory
+from entity.newsCategoryHistory import newsCategoryHistory
 
 newsController = Blueprint('newsController', __name__)
 
@@ -101,13 +103,12 @@ def categoryClickDay():
     year = request.json['year']
     month = request.json['month']
     day = request.json['day']
+    timemin=date(year=year,month=month,day=day)
     time1 = time.time()
-    result=db.session.query(func.count(History.id)).filter(and_(
-        History.newsId==News.newsId,
-        News.category == category,
-        extract('year', History.exposureTime) == year,
-        extract('month', History.exposureTime) == month,
-        extract('day', History.exposureTime) == day,
+    result=db.session.query(func.sum(categoryDayClick.amount)).filter(and_(
+        categoryDayClick.category==category,
+        categoryDayClick.exposureTime==timemin,
+
     )).all()
     time2 = time.time()
     print("查询时间：" + str(time2 - time1))
@@ -144,26 +145,24 @@ def getUserCategoryClick():
 @newsController.route('/getCategoryClick', methods=['GET'])
 def getCategoryClick():
     time1 = time.time()
-    result = db.session.query(NewsCategory.category,History.exposureTime,func.count(History.id)).filter(and_(
-        History.newsId == News.newsId,
-    )).group_by(NewsCategory.category,History.exposureTime).all()
+    result = categoryDayClick.query.all()
     time2 = time.time()
     print("查询时间：" + str(time2 - time1))
     print(result)
     resultJson = {}
     category=[]
     for item in result:
-        if item[0] in resultJson.keys():
+        if item.category in resultJson.keys():
 
             #print(type(resultJson[item[0]]))
-            resultJson[item[0]].append({
-                "time": str(item[1]),
-                "amount": str(item[2])
+            resultJson[item.category].append({
+                "time": str(item.exposureTime),
+                "amount": str(item.amount)
             })
         else:
-            resultJson[item[0]]=[{
-                "time": str(item[1]),
-                "amount": str(item[2])
+            resultJson[item.category]=[{
+                "time": str(item.exposureTime),
+                "amount": str(item.amount)
             }]
     resultList=[]
     for item in resultJson.keys():
@@ -261,9 +260,7 @@ def multiQuery():
 @newsController.route('/recommendCategory', methods=['GET'])
 def recommendCategory():
     time1 = time.time()
-    result = db.session.query(News.category, func.count(History.id),func.sum(History.dwellTime)).filter(and_(
-        History.newsId == News.newsId,
-    )).group_by(News.category).order_by((func.count(History.id)+func.sum(History.dwellTime)*0.1).desc()).all()
+    result = db.session.query(categoryDayClick.category, func.sum(categoryDayClick.amount),func.sum(categoryDayClick.totalTime)).group_by(categoryDayClick.category).order_by((func.sum(categoryDayClick.amount)+func.sum(categoryDayClick.totalTime)*0.1).desc()).all()
     time2 = time.time()
     print("查询时间：" + str(time2 - time1))
     print(result)
