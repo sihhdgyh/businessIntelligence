@@ -90,7 +90,7 @@ def getLifeTimeAll():
     # else:
     #     return 'error'
 
-@newsController.route('/newsClickDay', methods=['POST'])
+@newsController.route('/newsClickByDay', methods=['POST'])
 def newsClickDay():
     newsId=request.json['newId']
     year = request.json['year']
@@ -110,6 +110,28 @@ def newsClickDay():
     fp.write(str(clicksQuery) + ',' + str(date1) + ',' + str(date2) + "," + str(time2 - time1) + '\n')
     print("查询时间：" + str(time2 - time1))
     return str(clicks[0][0])
+
+@newsController.route('/newsDayClick', methods=['GET'])
+def newsDayClick():
+    newsId=request.args['newsId']
+    time1 = time.time()
+    date1=datetime.now()
+    clicksQuery= db.session.query(func.date_format (History.exposureTime,'%Y-%m-%d'), func.count(History.id)).filter(
+        History.newsId == newsId,
+    ).group_by(func.date_format (History.exposureTime,'%Y-%m-%d')).order_by(func.date_format (History.exposureTime,'%Y-%m-%d'))
+    clicks=clicksQuery.all()
+    time2 = time.time()
+    date2=datetime.now()
+    fp.write(str(clicksQuery) + ',' + str(date1) + ',' + str(date2) + "," + str(time2 - time1) + '\n')
+    print("查询时间：" + str(time2 - time1))
+    print(clicks)
+    result=[]
+    for item in clicks:
+        result.append({
+            'time':item[0],
+            'amount':item[1]
+        })
+    return result
 
 
 @newsController.route('/categoryClickDay', methods=['POST'])

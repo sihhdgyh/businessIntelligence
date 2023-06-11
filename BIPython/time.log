@@ -66,3 +66,6 @@ WHERE history.`newsId` = %(newsId_1)s AND EXTRACT(year FROM history.`exposureTim
 SELECT sum(`categoryDayClick1`.amount) AS sum_1 
 FROM `categoryDayClick1` 
 WHERE `categoryDayClick1`.category = %(category_1)s AND `categoryDayClick1`.`exposureTime` = %(exposureTime_1)s,2023-06-11 09:20:29.330277,2023-06-11 09:20:29.435189,0.10491251945495605
+SELECT date_format(history.`exposureTime`, %(date_format_2)s) AS date_format_1, count(history.id) AS count_1 
+FROM history 
+WHERE history.`newsId` = %(newsId_1)s GROUP BY date_format(history.`exposureTime`, %(date_format_3)s) ORDER BY date_format(history.`exposureTime`, %(date_format_4)s),2023-06-11 10:14:25.741416,2023-06-11 10:14:25.975790,0.2343733310699463
