@@ -257,11 +257,13 @@ def categoryClickUserDay():
 @newsController.route('/multiQuery', methods=['POST'])
 def multiQuery():
     amount = int(request.json['amount'])
+    print(amount)
     start_time=request.json['start_time']
     end_time = request.json['end_time']
     category = request.json['category']
     time_min=datetime.strptime(start_time, '%Y-%m-%d')
     time_max = datetime.strptime(end_time, '%Y-%m-%d')
+    print(time_max)
     print(time_min)
     # time_min=datetime(year=year,month=month_min,day=day_min,hour=0,minute=0,second=0)
     # time_max=datetime(year=year,month=month_max,day=day_max,hour=0,minute=0,second=0)
