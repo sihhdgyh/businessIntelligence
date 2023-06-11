@@ -1,0 +1,68 @@
+SELECT `categoryDayClick1`.category AS `categoryDayClick1_category`, sum(`categoryDayClick1`.amount) AS sum_1, sum(`categoryDayClick1`.`totalTime`) AS sum_2 
+FROM `categoryDayClick1` GROUP BY `categoryDayClick1`.category ORDER BY sum(`categoryDayClick1`.amount) + sum(`categoryDayClick1`.`totalTime`) * %(sum_3)s DESC,2023-06-11 08:18:13.832679,2023-06-11 08:18:13.914444,0.08176493644714355
+SELECT `categoryDayClick1`.category AS `categoryDayClick1_category`, sum(`categoryDayClick1`.amount) AS sum_1, sum(`categoryDayClick1`.`totalTime`) AS sum_2 
+FROM `categoryDayClick1` GROUP BY `categoryDayClick1`.category ORDER BY sum(`categoryDayClick1`.amount) + sum(`categoryDayClick1`.`totalTime`) * %(sum_3)s DESC,2023-06-11 08:19:32.963589,2023-06-11 08:19:33.048354,0.08476519584655762
+SELECT count(history.id) AS count_1 
+FROM history 
+WHERE history.`newsId` = %(newsId_1)s AND EXTRACT(year FROM history.`exposureTime`) = %(param_1)s AND EXTRACT(month FROM history.`exposureTime`) = %(param_2)s AND EXTRACT(day FROM history.`exposureTime`) = %(param_3)s,2023-06-11 08:45:21.766935,2023-06-11 08:45:21.925386,0.15845060348510742
+SELECT count(history.id) AS count_1 
+FROM history 
+WHERE history.`newsId` = %(newsId_1)s AND EXTRACT(year FROM history.`exposureTime`) = %(param_1)s AND EXTRACT(month FROM history.`exposureTime`) = %(param_2)s AND EXTRACT(day FROM history.`exposureTime`) = %(param_3)s,2023-06-11 08:45:32.428621,2023-06-11 08:45:32.473404,0.04478287696838379
+SELECT count(history.id) AS count_1 
+FROM history 
+WHERE history.`newsId` = %(newsId_1)s AND EXTRACT(year FROM history.`exposureTime`) = %(param_1)s AND EXTRACT(month FROM history.`exposureTime`) = %(param_2)s AND EXTRACT(day FROM history.`exposureTime`) = %(param_3)s,2023-06-11 08:45:41.137461,2023-06-11 08:45:41.202536,0.06507420539855957
+SELECT count(history.id) AS count_1 
+FROM history 
+WHERE history.`newsId` = %(newsId_1)s AND EXTRACT(year FROM history.`exposureTime`) = %(param_1)s AND EXTRACT(month FROM history.`exposureTime`) = %(param_2)s AND EXTRACT(day FROM history.`exposureTime`) = %(param_3)s,2023-06-11 08:45:47.062357,2023-06-11 08:45:47.126434,0.06407761573791504
+SELECT sum(`categoryDayClick1`.amount) AS sum_1 
+FROM `categoryDayClick1` 
+WHERE `categoryDayClick1`.category = %(category_1)s AND `categoryDayClick1`.`exposureTime` = %(exposureTime_1)s,2023-06-11 08:46:57.795027,2023-06-11 08:46:57.876499,0.08147239685058594
+SELECT history.id AS history_id, history.`userId` AS `history_userId`, history.`newsId` AS `history_newsId`, history.`dwellTime` AS `history_dwellTime`, history.`exposureTime` AS `history_exposureTime` 
+FROM history 
+WHERE history.`newsId` = %(newsId_1)s ORDER BY history.`exposureTime` DESC,2023-06-11 08:47:02.100370,2023-06-11 08:47:02.456083,0.3557131290435791
+SELECT news.category AS news_category, history.`exposureTime` AS `history_exposureTime`, count(history.id) AS count_1 
+FROM news, history 
+WHERE history.`newsId` = news.`newsId` AND history.`userId` = %(userId_1)s GROUP BY news.category, history.`exposureTime`,2023-06-11 08:47:08.863559,2023-06-11 08:47:08.995944,0.1323850154876709
+SELECT `categoryDayClick1`.id AS `categoryDayClick1_id`, `categoryDayClick1`.category AS `categoryDayClick1_category`, `categoryDayClick1`.`exposureTime` AS `categoryDayClick1_exposureTime`, `categoryDayClick1`.`totalTime` AS `categoryDayClick1_totalTime`, `categoryDayClick1`.amount AS `categoryDayClick1_amount` 
+FROM `categoryDayClick1`,2023-06-11 08:47:12.711938,2023-06-11 08:47:12.725901,0.013962984085083008
+SELECT news.`newsId` AS `news_newsId`, news.category AS news_category, news.topic AS news_topic, news.headline AS news_headline, news.`newsBody` AS `news_newsBody` 
+FROM news, history 
+WHERE history.`newsId` = news.`newsId` AND news.category = %(category_1)s AND history.`exposureTime` >= %(exposureTime_1)s AND history.`exposureTime` < %(exposureTime_2)s AND char_length(news.headline) < %(char_length_1)s AND char_length(news.`newsBody`) < %(char_length_2)s,2023-06-11 08:47:16.691093,2023-06-11 08:47:17.671208,0.9801139831542969
+SELECT `categoryDayClick1`.category AS `categoryDayClick1_category`, sum(`categoryDayClick1`.amount) AS sum_1, sum(`categoryDayClick1`.`totalTime`) AS sum_2 
+FROM `categoryDayClick1` GROUP BY `categoryDayClick1`.category ORDER BY sum(`categoryDayClick1`.amount) + sum(`categoryDayClick1`.`totalTime`) * %(sum_3)s DESC,2023-06-11 08:47:24.475798,2023-06-11 08:47:24.491083,0.015284299850463867
+SELECT news.`newsId` AS `news_newsId`, news.category AS news_category, news.topic AS news_topic, news.headline AS news_headline, news.`newsBody` AS `news_newsBody` 
+FROM news 
+WHERE news.category = %(category_1)s 
+ LIMIT %(param_1)s,2023-06-11 08:47:28.633164,2023-06-11 08:47:28.645031,0.01186680793762207
+SELECT news.category AS news_category, count(history.id) AS count_1 
+FROM news, history 
+WHERE history.`userId` = %(userId_1)s AND history.`newsId` = news.`newsId` AND EXTRACT(year FROM history.`exposureTime`) = %(param_1)s AND EXTRACT(month FROM history.`exposureTime`) = %(param_2)s AND EXTRACT(day FROM history.`exposureTime`) = %(param_3)s GROUP BY news.category,2023-06-11 08:47:33.501846,2023-06-11 08:47:33.521872,0.02002549171447754
+SELECT news.category AS news_category, count(history.id) AS count_1 
+FROM news, history 
+WHERE history.`userId` = %(userId_1)s AND history.`newsId` = news.`newsId` AND EXTRACT(year FROM history.`exposureTime`) = %(param_1)s AND EXTRACT(month FROM history.`exposureTime`) = %(param_2)s AND EXTRACT(day FROM history.`exposureTime`) = %(param_3)s GROUP BY news.category,2023-06-11 08:48:54.385305,2023-06-11 08:48:54.462412,0.07607173919677734
+SELECT news.`newsId` AS `news_newsId`, news.category AS news_category, news.topic AS news_topic, news.headline AS news_headline, news.`newsBody` AS `news_newsBody` 
+FROM news 
+WHERE news.category = %(category_1)s 
+ LIMIT %(param_1)s,2023-06-11 08:48:58.446094,2023-06-11 08:48:58.456069,0.00997471809387207
+SELECT `categoryDayClick1`.category AS `categoryDayClick1_category`, sum(`categoryDayClick1`.amount) AS sum_1, sum(`categoryDayClick1`.`totalTime`) AS sum_2 
+FROM `categoryDayClick1` GROUP BY `categoryDayClick1`.category ORDER BY sum(`categoryDayClick1`.amount) + sum(`categoryDayClick1`.`totalTime`) * %(sum_3)s DESC,2023-06-11 08:49:02.284625,2023-06-11 08:49:02.299580,0.014954566955566406
+SELECT news.`newsId` AS `news_newsId`, news.category AS news_category, news.topic AS news_topic, news.headline AS news_headline, news.`newsBody` AS `news_newsBody` 
+FROM news, history 
+WHERE history.`newsId` = news.`newsId` AND news.category = %(category_1)s AND history.`exposureTime` >= %(exposureTime_1)s AND history.`exposureTime` < %(exposureTime_2)s AND char_length(news.headline) < %(char_length_1)s AND char_length(news.`newsBody`) < %(char_length_2)s,2023-06-11 08:49:06.766393,2023-06-11 08:49:06.817954,0.051560401916503906
+SELECT `categoryDayClick1`.id AS `categoryDayClick1_id`, `categoryDayClick1`.category AS `categoryDayClick1_category`, `categoryDayClick1`.`exposureTime` AS `categoryDayClick1_exposureTime`, `categoryDayClick1`.`totalTime` AS `categoryDayClick1_totalTime`, `categoryDayClick1`.amount AS `categoryDayClick1_amount` 
+FROM `categoryDayClick1`,2023-06-11 08:49:10.878557,2023-06-11 08:49:10.898001,0.019443988800048828
+SELECT news.category AS news_category, history.`exposureTime` AS `history_exposureTime`, count(history.id) AS count_1 
+FROM news, history 
+WHERE history.`newsId` = news.`newsId` AND history.`userId` = %(userId_1)s GROUP BY news.category, history.`exposureTime`,2023-06-11 08:49:14.600761,2023-06-11 08:49:14.615961,0.015199422836303711
+SELECT history.id AS history_id, history.`userId` AS `history_userId`, history.`newsId` AS `history_newsId`, history.`dwellTime` AS `history_dwellTime`, history.`exposureTime` AS `history_exposureTime` 
+FROM history 
+WHERE history.`newsId` = %(newsId_1)s ORDER BY history.`exposureTime` DESC,2023-06-11 08:49:18.217179,2023-06-11 08:49:18.986192,0.7690131664276123
+SELECT sum(`categoryDayClick1`.amount) AS sum_1 
+FROM `categoryDayClick1` 
+WHERE `categoryDayClick1`.category = %(category_1)s AND `categoryDayClick1`.`exposureTime` = %(exposureTime_1)s,2023-06-11 08:49:22.804111,2023-06-11 08:49:22.817088,0.012977361679077148
+SELECT count(history.id) AS count_1 
+FROM history 
+WHERE history.`newsId` = %(newsId_1)s AND EXTRACT(year FROM history.`exposureTime`) = %(param_1)s AND EXTRACT(month FROM history.`exposureTime`) = %(param_2)s AND EXTRACT(day FROM history.`exposureTime`) = %(param_3)s,2023-06-11 08:49:26.221892,2023-06-11 08:49:26.379524,0.15763235092163086
+SELECT sum(`categoryDayClick1`.amount) AS sum_1 
+FROM `categoryDayClick1` 
+WHERE `categoryDayClick1`.category = %(category_1)s AND `categoryDayClick1`.`exposureTime` = %(exposureTime_1)s,2023-06-11 09:20:29.330277,2023-06-11 09:20:29.435189,0.10491251945495605

@@ -4,7 +4,7 @@ import settings
 from controller.newsController import newsController
 from flask_cors import CORS
 
-from database import db
+from database import db, fp
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
@@ -55,4 +55,6 @@ def test():
     '''
 
 if __name__ == "__main__":
+
     app.run()
+    fp.close()

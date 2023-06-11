@@ -4,12 +4,12 @@ from datetime import datetime, date
 from flask import Blueprint, request, session
 from sqlalchemy import and_, func, extract, or_
 
-from database import db
+from database import db, fp
 from entity.categoryDayClick import categoryDayClick
 from entity.history import History
 from entity.news import News
-from entity.newsCategory import NewsCategory
-from entity.newsCategoryHistory import newsCategoryHistory
+from entity.newsCategory1 import NewsCategory
+from entity.newsCategoryHistory1 import newsCategoryHistory
 
 newsController = Blueprint('newsController', __name__)
 
@@ -17,16 +17,25 @@ newsController = Blueprint('newsController', __name__)
 
 
 
-@newsController.route('/test', methods=['GET'])
+@newsController.route('/test', methods=['POST'])
 def getAllNews1():
-    userId=db.session.query(History).filter(and_(
-        History.id==13723441
-         )).limit(1).all()
+    category = request.json['category']
+    year = request.json['year']
+    month = request.json['month']
+    day = request.json['day']
+    print(db.session.query(
+        func.count(History.id)
+    ).filter(
+        News.category==category,
+        News.newsId==History.newsId,
+        extract('year', History.exposureTime) == year,
+        extract('month', History.exposureTime) == month,
+        extract('day', History.exposureTime) == day,
+    ))
     # userId = History.query.filter(and_(
     #     History.id==13723424
     #      )).limit(1).all()
-    print(userId)
-    return History.jsonformatList(userId)
+    return "History.jsonformatList(userId)"
 
 
 @newsController.route('/getAllNews', methods=['GET'])
@@ -38,10 +47,13 @@ def getAllNews():
 def getLifeTime():
     newsId=request.args['newsId']
     time1 = time.time()
-    historys=History.query.filter(History.newsId == newsId)\
-        .order_by(History.exposureTime.desc())\
-        .all()
+    date1=datetime.now()
+    historysQuery=History.query.filter(History.newsId == newsId)\
+        .order_by(History.exposureTime.desc())
+    historys=historysQuery.all()
     time2 = time.time()
+    date2 = datetime.now()
+    fp.write(str(historysQuery) + ',' + str(date1) + ',' + str(date2) + "," + str(time2 - time1) + '\n')
     print("查询时间："+str(time2-time1))
     #History.year.desc(), History.month.desc(),History.day.desc(),History.hour.desc(),History.minute.desc(),History.seconds.desc()
     if len(historys) > 0:
@@ -85,16 +97,19 @@ def newsClickDay():
     month = request.json['month']
     day = request.json['day']
     time1 = time.time()
-
-    clicks= History.query.filter(and_(
+    date1=datetime.now()
+    clicksQuery= db.session.query(func.count(History.id)).filter(and_(
         History.newsId == newsId,
         extract('year', History.exposureTime) == year,
         extract('month', History.exposureTime) == month,
         extract('day', History.exposureTime) == day,
-    )).order_by(History.exposureTime).all()
+    ))
+    clicks=clicksQuery.all()
     time2 = time.time()
+    date2=datetime.now()
+    fp.write(str(clicksQuery) + ',' + str(date1) + ',' + str(date2) + "," + str(time2 - time1) + '\n')
     print("查询时间：" + str(time2 - time1))
-    return str(len(clicks))
+    return str(clicks[0][0])
 
 
 @newsController.route('/categoryClickDay', methods=['POST'])
@@ -105,12 +120,16 @@ def categoryClickDay():
     day = request.json['day']
     timemin=date(year=year,month=month,day=day)
     time1 = time.time()
-    result=db.session.query(func.sum(categoryDayClick.amount)).filter(and_(
+    date1=datetime.now()
+    resultQuery=db.session.query(func.sum(categoryDayClick.amount)).filter(and_(
         categoryDayClick.category==category,
         categoryDayClick.exposureTime==timemin,
 
-    )).all()
+    ))
+    result=resultQuery.all()
     time2 = time.time()
+    date2=datetime.now()
+    fp.write(str(resultQuery) + ',' + str(date1) + ',' + str(date2) + "," + str(time2 - time1) + '\n')
     print("查询时间：" + str(time2 - time1))
     print(result)
     return str(result[0][0])
@@ -119,13 +138,16 @@ def categoryClickDay():
 @newsController.route('/getUserCategoryClick', methods=['GET'])
 def getUserCategoryClick():
     userId=request.args['userId']
-
+    date1=datetime.now()
     time1 = time.time()
-    result = db.session.query(News.category,History.exposureTime,func.count(History.id)).filter(and_(
+    resultQuery = db.session.query(News.category,History.exposureTime,func.count(History.id)).filter(and_(
         History.newsId == News.newsId,
         History.userId == userId
-    )).group_by(News.category,History.exposureTime).all()
+    )).group_by(News.category,History.exposureTime)
+    result=resultQuery.all()
     time2 = time.time()
+    date2=datetime.now()
+    fp.write(str(resultQuery) + ',' + str(date1) + ',' + str(date2) + "," + str(time2 - time1) + '\n')
     print("查询时间：" + str(time2 - time1))
     print(result)
     resultJson=[]
@@ -144,9 +166,13 @@ def getUserCategoryClick():
 
 @newsController.route('/getCategoryClick', methods=['GET'])
 def getCategoryClick():
+    date1=datetime.now()
     time1 = time.time()
-    result = categoryDayClick.query.all()
+    resultQuery = categoryDayClick.query
+    result=resultQuery.all()
     time2 = time.time()
+    date2=datetime.now()
+    fp.write(str(resultQuery) + ',' + str(date1) + ',' + str(date2) + "," + str(time2 - time1) + '\n')
     print("查询时间：" + str(time2 - time1))
     print(result)
     resultJson = {}
@@ -182,16 +208,19 @@ def categoryClickUserDay():
     year = request.json['year']
     month = request.json['month']
     day = request.json['day']
-
+    date1=datetime.now()
     time1 = time.time()
-    result = db.session.query(News.category,func.count(History.id)).filter(and_(
+    resultQuery = db.session.query(News.category,func.count(History.id)).filter(and_(
         History.userId == userId,
         History.newsId == News.newsId,
         extract('year', History.exposureTime) == year,
         extract('month', History.exposureTime) == month,
         extract('day', History.exposureTime) == day,
-    )).group_by(News.category).all()
+    )).group_by(News.category)
+    result=resultQuery.all()
     time2 = time.time()
+    date2=datetime.now()
+    fp.write(str(resultQuery) + ',' + str(date1) + ',' + str(date2) + "," + str(time2 - time1) + '\n')
     print("查询时间：" + str(time2 - time1))
     print(result)
     resultJson = {}
@@ -217,6 +246,7 @@ def multiQuery():
     titleLength_max = int(request.json['titleLength_max'])
     newsLength_max = int(request.json['newsLength_max'])
     userId = request.json['userId']
+    date1=datetime.now()
     time1 = time.time()
     if userId=='':
         resultQuery = db.session.query(News).filter(and_(
@@ -251,6 +281,8 @@ def multiQuery():
     result=resultQuery.limit(amount).all()
     #result = resultQuery
     time2 = time.time()
+    date2=datetime.now()
+    fp.write(str(resultQuery) + ',' + str(date1) + ',' + str(date2) + "," + str(time2 - time1) + '\n')
     print('查询时间：'+str(time2-time1))
     print("result")
     print(result)
@@ -260,8 +292,12 @@ def multiQuery():
 @newsController.route('/recommendCategory', methods=['GET'])
 def recommendCategory():
     time1 = time.time()
-    result = db.session.query(categoryDayClick.category, func.sum(categoryDayClick.amount),func.sum(categoryDayClick.totalTime)).group_by(categoryDayClick.category).order_by((func.sum(categoryDayClick.amount)+func.sum(categoryDayClick.totalTime)*0.1).desc()).all()
+    date1=datetime.now()
+    resultQuery = db.session.query(categoryDayClick.category, func.sum(categoryDayClick.amount),func.sum(categoryDayClick.totalTime)).group_by(categoryDayClick.category).order_by((func.sum(categoryDayClick.amount)+func.sum(categoryDayClick.totalTime)*0.1).desc())
+    result=resultQuery.all()
     time2 = time.time()
+    date2 = datetime.now()
+    fp.write(str(resultQuery)+','+str(date1)+','+str(date2)+ ","+str(time2 - time1)+'\n')
     print("查询时间：" + str(time2 - time1))
     print(result)
 
@@ -271,9 +307,13 @@ def recommendCategory():
 def getNewsCA():
     category=request.json['category']
     amount = int(request.json['amount'])
+    date1=datetime.now()
     time1 = time.time()
-    result = News.query.filter(News.category==category).limit(amount).all()
+    resultQuery = News.query.filter(News.category==category).limit(amount)
+    result=resultQuery.all()
     time2 = time.time()
+    date2=datetime.now()
+    fp.write(str(resultQuery) + ',' + str(date1) + ',' + str(date2) + "," + str(time2 - time1) + '\n')
     print("查询时间：" + str(time2 - time1))
     print(result)
 
